@@ -1,0 +1,342 @@
+const users = [
+   
+    { username: 'yash', password: 'yashverma' },
+   
+    { username: 'user3', password: 'password3' },
+    { username: 'rohit', password: 'sahni' },
+
+];
+
+let balance = parseFloat(localStorage.getItem('balance')) || 0;
+let username = localStorage.getItem('username') || '';
+let selectedBet = '';
+let coinImg = document.getElementById('coin-img');
+let coinElement = document.getElementById('coin');
+let resultElement = document.getElementById('result');
+let walletInfo = document.getElementById('wallet-info');
+let userInfoNav = document.getElementById('user-info-nav');
+let userBalanceNav = document.getElementById('user-balance-nav');
+
+function login() {
+    const enteredUsername = document.getElementById('username').value;
+    const enteredPassword = document.getElementById('password').value;
+
+    const user = users.find(user => user.username === enteredUsername && user.password === enteredPassword);
+
+    if (user) {
+        username = user.username;
+        localStorage.setItem('username', username);
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('game-section').style.display = 'block';
+        document.getElementById('top-nav').style.display = 'flex';
+        updateWalletInfo();
+    } else {
+        alert('Incorrect username or password.');
+    }
+}
+
+function updateWalletInfo() {
+    walletInfo.textContent = `Balance: ₹${balance}`;
+    userInfoNav.textContent = `Username: ${username}`;
+    userBalanceNav.textContent = `Balance: ₹${balance}`;
+    localStorage.setItem('balance', balance);
+}
+
+function selectBet(bet) {
+    selectedBet = bet;
+    document.getElementById('selected-bet').textContent = `Selected Bet: ${bet.charAt(0).toUpperCase() + bet.slice(1)}`;
+}
+
+function placeBet(amount) {
+    if (!selectedBet) {
+        alert('Please select Heads or Tails first.');
+        return;
+    }
+    if (balance < amount) {
+        alert('Insufficient balance.');
+        return;
+    }
+    balance -= amount;
+    updateWalletInfo();
+    flipCoin();
+    setTimeout(() => {
+       
+ const randomChance = Math.random(); // 0 se 1 ke beech random number generate karega
+let result;
+
+if (randomChance < 0.1) {
+    // 10% chance me user ka bet sahi hoga
+    result = selectedBet;
+} else {
+    // 90% chance me user ka bet ka opposite result hoga
+    result = selectedBet === "heads" ? "tails" : "heads";
+}
+
+const winAmount = (amount === 1 ? 10 : amount === 5 ? 50 : 100);
+if (result === selectedBet) {
+    resultElement.textContent = `You win! It was ${result.charAt(0).toUpperCase() + result.slice(1)}.`;
+    balance += winAmount;
+} else {
+    resultElement.textContent = `You lose. It was ${result.charAt(0).toUpperCase() + result.slice(1)}.`;
+}
+
+
+ updateWalletInfo();
+        updateCoinImage(result);
+    }, 5000);
+}
+
+function flipCoin() {
+    coinElement.classList.add('flipped');
+    setTimeout(() => {
+        coinElement.classList.remove('flipped');
+    }, 5000);
+}
+
+function updateCoinImage(result) {
+    if (result === 'heads') {
+        coinImg.src = 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiCSzbOi-rdVwWcBXgmS2ZGv5m2BT5J-PGpl2iG5oDZd2NXa2GM69FDbwOw06Yw0ZJ4gYlqvXLVEB6QJvbqTxbjD6Jy89XODCZ_Ra7MPU8h8MhyAhDoE_2B1YIuFEwIbTtn0Tdm4aZLoC1DPD290ZHOyp549iPDIkHUcVFbryhkGWq3Tuwk4TNnTGBhUJ8/w200-h200/-qIBFet0QBmbGCPdC3g2rw-removebg-preview.png'; // Replace with your heads image URL
+    } else {
+        coinImg.src = 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEip32nfZWsYX-ip6G4S88eXQIpgOl1E7YsPbiDBy8fyC0pi9h0d6dTN1ONdNRCFBDTCUwxtjfh59AvRJkVF-T90DCaaeZeIcGZmv2m8b5reQ2rWZLaxZQ4tm6o1BOJ_SRZb9kyaqRAElGncVt6Xj_2_NNKiF62sFLiht9oKff-ixqjTmuJrbv2vUhOrrd8/w200-h200/gK3-mP-8Qyi_AExOu82I6w-removebg-preview.png'; // Replace with your tails image URL
+    }
+}
+//i change doller sign to paisa
+function showPopup() {
+    document.getElementById('popup').style.display = 'block';
+    document.getElementById('popup-balance').textContent = `Balance: ₹${balance}`;
+}
+
+function closePopup() {
+    document.getElementById('popup').style.display = 'none';
+}
+
+function watchAd() {
+    alert('Watching ad...');
+    balance += 1;
+    updateWalletInfo();
+    closePopup();
+}
+
+function addMoneyViaUPI() {
+    alert('Money added via UPI.');
+    balance += 10;
+    updateWalletInfo();
+    closePopup();
+}
+//new code just
+  function withdrawMoney() {
+        let username = prompt("Enter your username:");
+        if (!username) {
+            alert("Username is required.");
+            return;
+        }
+
+        let amount = prompt("Enter amount to withdraw:");
+        amount = parseFloat(amount);
+        if (isNaN(amount) || amount <= 0 || amount > balance) {
+            alert("Invalid amount.");
+            return;
+        }
+
+        let upiId = prompt("Enter your UPI ID:");
+        if (!upiId) {
+            alert("UPI ID is required.");
+            return;
+        }
+
+        let withdrawalData = {
+            username: username,
+            amount: amount,
+            upi_id: upiId
+        };
+
+        // Google Apps Script Web App URL (Replace with your URL)
+        let googleScriptURL = "https://script.google.com/macros/s/AKfycbzu4MRQ2bejfBXYCLN7U6jVBtSPykvq8ngDXNBtxnuclnPQEPhYxiOeLJ63ptvy5EdW/exec";
+
+        fetch(googleScriptURL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(withdrawalData)
+        }).then(response => {
+            alert("Withdrawal request sent successfully!");
+            balance -= amount;
+            updateWalletInfo();
+        }).catch(error => {
+            alert("Error sending request. Try again.");
+            console.error("Error:", error);
+        });
+    }
+  //new code just  
+    
+document.addEventListener('DOMContentLoaded', () => {
+    if (username) {
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('game-section').style.display = 'block';
+        document.getElementById('top-nav').style.display = 'flex';
+        updateWalletInfo();
+    }
+});
+  
+ //block view page source 
+(function() {
+    // 🔹 Right-click disable
+    document.addEventListener("contextmenu", (e) => e.preventDefault());
+
+    // 🔹 Block View Source, Inspect Element & Other Shortcuts
+    document.addEventListener("keydown", (e) => {
+        if (
+            e.ctrlKey && (e.key === "u" || e.key === "s" || e.key === "i" || e.key === "j" || e.key === "c" || e.key === "k" || e.key === "h") ||
+            e.keyCode === 123 || // 🔹 F12 disable
+            (e.ctrlKey && e.shiftKey && (e.key === "T" || e.key === "I" || e.key === "J"))
+        ) {
+  
+//edit new
+         (e.ctrlKey && e.shiftKey && e.keyCode === 'C'.charCodeAt(0)) // Ctrl+Shift+C
+
+
+
+
+    // ⛔ Hide Entire Page Source
+    let blankHTML = "<html><head><style>body{display:none !important;}</style></head><body></body></html>";
+
+  
+
+
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    // 🔹 Block Console Debugging & Fake Error
+    function blockConsole() {
+        setInterval(() => {
+            (function() {
+                try {
+                    (function consoleClear() {
+                        if (window.console && (console.log || console.warn || console.error || console.info)) {
+                            console.log = console.warn = console.error = console.info = function() {
+                                console.error("Developer Mode is Disabled!");
+                                window.location.href = "error.html"; // 🔹 Redirect to Error Page
+                            };
+                        }
+                    })();
+                } catch (e) {}
+            })();
+        }, 1000);
+    }
+    blockConsole();
+
+    // 🔹 Debugger Block
+    function preventDebug() {
+        setInterval(() => {
+            debugger;
+        }, 1000);
+    }
+    preventDebug();
+
+    // 🔹 Block View-Source URL Access
+    if (window.location.href.startsWith("view-source:")) {
+        window.location.href = "about:blank"; // 🔹 Redirect to blank page
+    }
+
+    // 🔹 Detect DevTools Open & Redirect
+    function detectDevTools() {
+        let before = new Date().getTime();
+        debugger;
+        let after = new Date().getTime();
+        if (after - before > 100) {
+            window.location.href = "error.html"; // 🔹 Redirect to Error Page
+        }
+    }
+    setInterval(detectDevTools, 2000);
+
+    // 🔹 Prevent CTRL+SHIFT+T (Reopen Closed Tab)
+    window.onbeforeunload = function() {
+        return "Are you sure you want to leave?";
+    };
+})();
+
+
+
+
+
+(function() {
+    // 🛑 Block Right-Click & Disable Key Combinations
+    document.addEventListener('contextmenu', event => event.preventDefault());
+    document.onkeydown = function(e) {
+        if (e.keyCode == 123 || 
+            (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) || 
+            (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) || 
+            (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0))) {
+            return false;
+        }
+    };
+
+    // 🔒 Obfuscated Function (Hard to Read!)
+    function a(x) {
+        return x.split('').map(c => String.fromCharCode(c.charCodeAt(0) ^ 7)).join('');
+    }
+
+    // 🔥 Encrypt/Decrypt LocalStorage (Makes Editing Harder)
+    function encryptData(data) {
+        return btoa(unescape(encodeURIComponent(data)));
+    }
+    function decryptData(data) {
+        return decodeURIComponent(escape(atob(data)));
+    }
+
+    // Example Usage
+    let balance = "5000"; // Fake game balance
+    localStorage.setItem("gameBalance", encryptData(balance));
+
+    // Check for Debugging Attempts
+    function detectDebug() {
+        let d = new Date();
+        debugger;
+        if (new Date() - d > 100) {
+            alert("Debugging Detected! Redirecting...");
+            window.location.href = "https://google.com";
+        }
+    }
+    setInterval(detectDebug, 3000);
+
+    // 🔄 Auto-Close Console & Block Inspect
+    (function() {
+        var element = new Image();
+        Object.defineProperty(element, 'id', {
+            get: function() {
+                alert("Hacking Attempt Detected!");
+                window.location.reload();
+            }
+        });
+        console.log(element);
+    })();
+
+    // ⛔ Prevent Console Modification
+    (function() {
+        const oldLog = console.log;
+        console.log = function() {
+            oldLog.apply(console, ["Console Disabled"]);
+        };
+    })();
+
+    // ❌ Block Browser Developer Tools
+    setInterval(() => {
+        if (window.outerWidth - window.innerWidth > 100 || 
+            window.outerHeight - window.innerHeight > 100) {
+            alert("Developer Tools Detected!");
+            window.location.href = "https://google.com";
+        }
+    }, 1000);
+
+})();
+
+
+// end of block view page source code
+ 
+  
+document.addEventListener('contextmenu', event => event.preventDefault());
+  -s
